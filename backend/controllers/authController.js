@@ -51,3 +51,41 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.signUpUser = async (req, res) => {
+  const { name, employeeId, password } = req.body;
+
+  // Input validation
+  if (!name || !employeeId || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await pool.query(
+      'SELECT * FROM employees WHERE employee_id = $1',
+      [employeeId]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Employee already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Insert user into database
+    await pool.query(
+      'INSERT INTO employees (name, employee_id, password) VALUES ($1, $2, $3)',
+      [name, employeeId, hashedPassword]
+    );
+
+    res.status(201).json({ message: 'Signup successful' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+
+

@@ -88,7 +88,11 @@ const Login = () => {
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
+          
         </form>
+        <p className="text-gray-400 text-sm text-center mt-4">
+          Don't have an account ? <a href="/signup" className="text-primary underline">SignUp</a>
+        </p>
       </div>
     </div>
   );
