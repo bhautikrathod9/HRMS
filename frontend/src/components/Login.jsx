@@ -35,6 +35,7 @@ const Login = () => {
 
       // Success: save token, redirect, etc.
       localStorage.setItem('token', data.token);
+      localStorage.setItem('employeeId', employeeId)
       navigate('/dashboard');
       alert('Login successful!');
     } catch (err) {
