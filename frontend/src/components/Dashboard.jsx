@@ -15,23 +15,7 @@ const EmployeeDashboard = () => {
     zip: '',
   });
   const [photo, setPhoto] = useState(null);
-
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      const employeeId = localStorage.getItem('employeeId');
-      try {
-        const response = await axios.get(`http://localhost:3000/employees/${employeeId}`);
-        const fullAddress = response.data.address || '';
-        const [line1 = '', city = '', state = '', zip = ''] = fullAddress.split(',').map(s => s.trim());
-        setAddress({ line1, city, state, zip });
-      } catch (error) {
-        console.error('Failed to fetch employee data:', error);
-      }
-    };
   
-    fetchEmployee();
-  }, []);
-
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
@@ -74,19 +58,35 @@ const EmployeeDashboard = () => {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
-    if (file && file.size <= 200 * 1024) {
-      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-      if (allowedTypes.includes(file.type)) {
-        setPhoto(URL.createObjectURL(file));
-      } else {
-        alert('Only PDF, JPEG, and PNG formats are allowed.');
-      }
-    } else {
-      alert('File size must be under 200KB.');
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append('photo', file);
+  
+    const employeeId = localStorage.getItem('employeeId');
+    const token = localStorage.getItem('token');
+  
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/employee/upload/${employeeId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+  
+      setPhoto(response.data.photoUrl);
+    } catch (error) {
+      console.error('Upload failed', error);
+      alert('Upload failed');
     }
   };
+  
 
   const handleSubmit = async () => {
     try {
