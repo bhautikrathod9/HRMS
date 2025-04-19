@@ -17,6 +17,22 @@ const EmployeeDashboard = () => {
   const [photo, setPhoto] = useState(null);
 
   useEffect(() => {
+    const fetchEmployee = async () => {
+      const employeeId = localStorage.getItem('employeeId');
+      try {
+        const response = await axios.get(`http://localhost:3000/employees/${employeeId}`);
+        const fullAddress = response.data.address || '';
+        const [line1 = '', city = '', state = '', zip = ''] = fullAddress.split(',').map(s => s.trim());
+        setAddress({ line1, city, state, zip });
+      } catch (error) {
+        console.error('Failed to fetch employee data:', error);
+      }
+    };
+  
+    fetchEmployee();
+  }, []);
+
+  useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
         const employeeId = localStorage.getItem('employeeId');
@@ -27,18 +43,32 @@ const EmployeeDashboard = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         const empData = response.data;
         setEmployee(empData);
-        setAddress(empData.address || address);
-        setPhoto(empData.photoUrl || null); // optional
+  
+        // Split the full address string into parts
+        if (empData.address) {
+          const [line1 = '', city = '', state = '', zip = ''] = empData.address.split(',').map(part => part.trim());
+          setAddress({ line1, city, state, zip });
+        } else {
+          setAddress({
+            line1: '',
+            city: '',
+            state: '',
+            zip: '',
+          });
+        }
+  
+        setPhoto(empData.photoUrl || null); 
       } catch (error) {
         console.error('Error fetching employee data:', error);
       }
     };
-
+  
     fetchEmployeeData();
   }, []);
+  
 
   const handleAddressChange = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
@@ -58,9 +88,23 @@ const EmployeeDashboard = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Submitted:', address);
-    // You can also POST updated address here
+  const handleSubmit = async () => {
+    try {
+      const employeeId = localStorage.getItem('employeeId');
+      const fullAddress = `${address.line1}, ${address.city}, ${address.state}, ${address.zip}`;
+  
+      await axios.put(`http://localhost:3000/address/${employeeId}`, {
+        line1: address.line1,
+        city: address.city,
+        state: address.state,
+        zip: address.zip,
+      });
+  
+      alert('Address updated successfully!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update address.');
+    }
   };
 
   const handleTabClick = (tab) => {
@@ -130,11 +174,35 @@ const EmployeeDashboard = () => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <h3 className="text-lg font-semibold mb-2 text-black">Address:</h3>
-          <input name="line1" value={address.line1} onChange={handleAddressChange} className="w-full p-2 mb-2 border border-gray-300 rounded" />
-          <input name="city" value={address.city} onChange={handleAddressChange} className="w-full p-2 mb-2 border border-gray-300 rounded" />
-          <input name="state" value={address.state} onChange={handleAddressChange} className="w-full p-2 mb-2 border border-gray-300 rounded" />
-          <input name="zip" value={address.zip} onChange={handleAddressChange} className="w-full p-2 mb-4 border border-gray-300 rounded" />
+        <h3 className="text-lg font-semibold mb-2 text-black">Address:</h3>
+            <input
+              name="line1"
+              value={address.line1}
+              onChange={handleAddressChange}
+              placeholder="Street Address"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <input
+              name="city"
+              value={address.city}
+              onChange={handleAddressChange}
+              placeholder="City"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <input
+              name="state"
+              value={address.state}
+              onChange={handleAddressChange}
+              placeholder="State"
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <input
+              name="zip"
+              value={address.zip}
+              onChange={handleAddressChange}
+              placeholder="Zip Code"
+              className="w-full p-2 mb-4 border border-gray-300 rounded"
+            />
         </div>
 
         <div className="flex justify-center items-center">
