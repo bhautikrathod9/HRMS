@@ -38,6 +38,14 @@ const EmployeeDashboard = () => {
     console.log('Submitted:', address);
   };
 
+  const handleTabClick = (tab) => {
+    if (tab === 'Employee Data') {
+      // Stay on the current dashboard
+      return;
+    }
+    navigate('/comingSoon');
+  };
+
   const handleCancel = () => {
     setAddress({
       line1: '46520 Fremont Blvd STE 614,',
@@ -55,6 +63,7 @@ const EmployeeDashboard = () => {
           <IoHomeSharp className='text-2xl cursor-pointer'/>
           <MdLogout className='text-2xl cursor-pointer' onClick={() => {
             localStorage.removeItem('token');
+            localStorage.removeItem('employeeId')
             navigate('/login');
           }}/>
         </div>
@@ -65,7 +74,8 @@ const EmployeeDashboard = () => {
         {['Employee Data', 'View Compensation', 'View Benefits', 'Time Entry (weekly)', 'View Projects', 'View Payslips', 'View Tax Summary', 'Work Login'].map((tab, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 ${idx === 0 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'} rounded-t`}
+            onClick={() => handleTabClick(tab)}
+            className={`cursor-pointer px-4 py-2 ${idx === 0 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'} rounded-t`}
           >
             {tab}
           </div>

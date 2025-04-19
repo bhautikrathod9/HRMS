@@ -3,6 +3,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import Signup from './components/SignUp';
+import ComingSoon from './components/ComingSoon';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         {/* Protected route */}
+        <Route path="/comingSoon" element={<ComingSoon />}/>
         <Route
           path="/dashboard"
           element={
