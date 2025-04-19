@@ -9,6 +9,7 @@ app.use(express.json());
 // Routes
 const authMiddleware = require('./middleware/authMiddleware')
 const authRoutes = require('./routes/auth');
+const cloudinaryRoutes = require('./utils/cloudnary')
 const pool = require('./db');
 
 app.use('/api/auth', authRoutes);
@@ -32,8 +33,6 @@ app.get('/employee/:id', authMiddleware, async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
 app.put('/address/:id', async (req, res) => {
      const id = req.params.id.trim(); // Get the employee ID from the URL parameters
     const { line1, city, state, zip } = req.body; // Destructure the address fields from the request body
@@ -68,6 +67,7 @@ app.put('/address/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+app.use(cloudinaryRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
