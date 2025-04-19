@@ -9,12 +9,36 @@ const EmployeeDashboard = () => {
 
   const [employee, setEmployee] = useState(null);
   const [address, setAddress] = useState({
-    line1: '46520 Fremont Blvd STE 614,',
-    city: 'Fremont',
-    state: 'Fremont, CA',
-    zip: '94538',
+    line1: '',
+    city: '',
+    state: '',
+    zip: '',
   });
   const [photo, setPhoto] = useState(null);
+
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const employeeId = localStorage.getItem('employeeId');
+        const token = localStorage.getItem('token');
+        
+        const response = await axios.get(`http://localhost:3000/employee/${employeeId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const empData = response.data;
+        setEmployee(empData);
+        setAddress(empData.address || address);
+        setPhoto(empData.photoUrl || null); // optional
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
 
   const handleAddressChange = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
@@ -36,23 +60,25 @@ const EmployeeDashboard = () => {
 
   const handleSubmit = () => {
     console.log('Submitted:', address);
+    // You can also POST updated address here
   };
 
   const handleTabClick = (tab) => {
-    if (tab === 'Employee Data') {
-      // Stay on the current dashboard
-      return;
-    }
+    if (tab === 'Employee Data') return;
     navigate('/comingSoon');
   };
 
   const handleCancel = () => {
-    setAddress({
-      line1: '46520 Fremont Blvd STE 614,',
-      city: 'Fremont',
-      state: 'Fremont, CA',
-      zip: '94538',
-    });
+    if (employee?.address) {
+      setAddress(employee.address);
+    } else {
+      setAddress({
+        line1: '',
+        city: '',
+        state: '',
+        zip: '',
+      });
+    }
     setPhoto(null);
   };
 
@@ -60,12 +86,12 @@ const EmployeeDashboard = () => {
     <div className="min-h-screen bg-white text-black p-6 font-sans">
       <div className="flex justify-between items-center border-b border-gray-300 pb-4 mb-4">
         <div className="flex gap-4">
-          <IoHomeSharp className='text-2xl cursor-pointer'/>
+          <IoHomeSharp className='text-2xl cursor-pointer' />
           <MdLogout className='text-2xl cursor-pointer' onClick={() => {
             localStorage.removeItem('token');
-            localStorage.removeItem('employeeId')
+            localStorage.removeItem('employeeId');
             navigate('/login');
-          }}/>
+          }} />
         </div>
         <div className="bg-blue-600 text-white px-3 py-1 rounded">Privileged</div>
       </div>
@@ -87,17 +113,17 @@ const EmployeeDashboard = () => {
       <div className="grid md:grid-cols-2 gap-6 mb-6">
         <table className="w-full border border-gray-300">
           <tbody>
-            <tr><td className="p-2 font-bold border-b">Employee Name:</td><td className="p-2 border-b"></td></tr>
-            <tr><td className="p-2 font-bold border-b">Employment Type:</td><td className="p-2 border-b">Contractor</td></tr>
-            <tr><td className="p-2 font-bold border-b">Contact Number:</td><td className="p-2 border-b">9500027522</td></tr>
-            <tr><td className="p-2 font-bold">Job Location:</td><td className="p-2">USA</td></tr>
+            <tr><td className="p-2 font-bold border-b">Employee Name:</td><td className="p-2 border-b">{employee?.name || '-'}</td></tr>
+            <tr><td className="p-2 font-bold border-b">Employment Type:</td><td className="p-2 border-b">{employee?.employment_type || 'Contractor'}</td></tr>
+            <tr><td className="p-2 font-bold border-b">Contact Number:</td><td className="p-2 border-b">{employee?.contact_number || '-'}</td></tr>
+            <tr><td className="p-2 font-bold">Job Location:</td><td className="p-2">{employee?.job_location || 'USA'}</td></tr>
           </tbody>
         </table>
         <table className="w-full border border-gray-300">
           <tbody>
-            <tr><td className="p-2 font-bold border-b">Employee ID:</td><td className="p-2 border-b">IDSC095</td></tr>
-            <tr><td className="p-2 font-bold border-b">Job Title:</td><td className="p-2 border-b">Project_intern</td></tr>
-            <tr><td className="p-2 font-bold">Date of Joining:</td><td className="p-2">2024-06-15</td></tr>
+            <tr><td className="p-2 font-bold border-b">Employee ID:</td><td className="p-2 border-b">{employee?.employee_id || '-'}</td></tr>
+            <tr><td className="p-2 font-bold border-b">Job Title:</td><td className="p-2 border-b">{employee?.job_title || '-'}</td></tr>
+            <tr><td className="p-2 font-bold">Date of Joining:</td><td className="p-2">{employee?.date_of_joining || '-'}</td></tr>
           </tbody>
         </table>
       </div>
