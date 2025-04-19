@@ -12,7 +12,13 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         {/* Protected route */}
-        <Route path="/comingSoon" element={<ComingSoon />}/>
+        <Route 
+          path="/comingSoon" 
+          element={
+            <ProtectedRoute>
+              <ComingSoon />
+            </ProtectedRoute>
+          }/>
         <Route
           path="/dashboard"
           element={
